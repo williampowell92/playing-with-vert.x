@@ -19,6 +19,8 @@ public class MyFirstVerticle extends AbstractVerticle {
           .end("<h1>Welcome to the world's worst API</h1>");
     });
 
+    router.route("/assets/*").handler(StaticHandler.create("assets"));
+
     vertx
         .createHttpServer()
         .requestHandler(router::accept)
