@@ -37,13 +37,13 @@ public class MyFirstVerticleTest {
   }
 
   @Test
-  public void myApplicationContainsCorrectString(TestContext context) {
+  public void indexPageHasHeading(TestContext context) {
     final Async async = context.async();
 
     vertx.createHttpClient().getNow(port, "localhost", "/",
         response -> {
           response.handler(body -> {
-            context.assertTrue(body.toString().contains("Look at me, I'm Mr Meeseeks!"));
+            context.assertTrue(body.toString().contains("Welcome to the world's worst API"));
             async.complete();
           });
         });
