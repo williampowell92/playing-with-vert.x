@@ -3,13 +3,9 @@ package com.vertx.first;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
 import io.vertx.core.http.HttpServerResponse;
-import io.vertx.core.json.Json;
 import io.vertx.ext.web.Router;
-import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.handler.StaticHandler;
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 public class MyFirstVerticle extends AbstractVerticle {
 
@@ -17,8 +13,6 @@ public class MyFirstVerticle extends AbstractVerticle {
 
   @Override
   public void start(Future<Void> future) {
-
-    animalService.seed();
 
     Router router = Router.router(vertx);
 

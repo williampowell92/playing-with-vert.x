@@ -9,6 +9,10 @@ public class AnimalService {
 
   static Map<Integer, Animal> animals = new LinkedHashMap<>();
 
+  public AnimalService() {
+    this.seed();
+  }
+
   void seed() {
     Animal dog = new Animal("Dog", "Woof");
     animals.put(dog.getId(), dog);

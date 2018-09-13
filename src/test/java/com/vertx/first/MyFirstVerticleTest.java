@@ -42,6 +42,8 @@ public class MyFirstVerticleTest {
 
     vertx.createHttpClient().getNow(port, "localhost", "/",
         response -> {
+          context.assertEquals(response.statusCode(), 200);
+          context.assertEquals(response.headers().get("content-type"), "text/html");
           response.handler(body -> {
             context.assertTrue(body.toString().contains("Welcome to the world's worst API"));
             async.complete();
