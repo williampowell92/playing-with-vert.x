@@ -15,7 +15,7 @@ public class MyFirstVerticle extends AbstractVerticle {
 
   private Map<Integer, Animal> animals = new LinkedHashMap<>();
 
-  private void createData() {
+  private void seedAnimals() {
     Animal dog = new Animal("Dog", "Woof");
     animals.put(dog.getId(), dog);
     Animal cat = new Animal("Cat", "Meow");
@@ -28,10 +28,19 @@ public class MyFirstVerticle extends AbstractVerticle {
         .end(Json.encodePrettily(animals.values()));
   }
 
+  private void createAnimal(RoutingContext routingContext) {
+    final Animal animal = Json.decodeValue(routingContext.getBodyAsString(), Animal.class);
+    animals.put(animal.getId(), animal);
+    routingContext.response()
+        .setStatusCode(201)
+        .putHeader("content-type", "application/json; charset=utf-8")
+        .end(Json.encodePrettily(animal));
+  }
+
   @Override
   public void start(Future<Void> future) {
 
-    createData();
+    seedAnimals();
 
     Router router = Router.router(vertx);
 
@@ -45,6 +54,8 @@ public class MyFirstVerticle extends AbstractVerticle {
     router.route("/assets/*").handler(StaticHandler.create("assets"));
 
     router.get("/api/animals").handler(this::getAnimals);
+    router.route("/api/animals*").handler(BodyHandler.create());
+    router.post("/api/animals").handler(this::createAnimal);
 
     vertx
         .createHttpServer()
