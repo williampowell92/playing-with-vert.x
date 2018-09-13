@@ -37,6 +37,19 @@ public class MyFirstVerticle extends AbstractVerticle {
         .end(Json.encodePrettily(animal));
   }
 
+  private void killAnimal(RoutingContext routingContext) {
+    String id = routingContext.request().getParam("id");
+
+    if (id == null) {
+      routingContext.response().setStatusCode(400).end();
+    } else {
+      Integer idAsInteger = Integer.valueOf(id);
+      animals.remove(idAsInteger);
+    }
+
+    routingContext.response().setStatusCode(204).end();
+  }
+
   @Override
   public void start(Future<Void> future) {
 
@@ -56,6 +69,7 @@ public class MyFirstVerticle extends AbstractVerticle {
     router.get("/api/animals").handler(this::getAnimals);
     router.route("/api/animals*").handler(BodyHandler.create());
     router.post("/api/animals").handler(this::createAnimal);
+    router.delete("/api/animals/:id").handler(this::killAnimal);
 
     vertx
         .createHttpServer()
