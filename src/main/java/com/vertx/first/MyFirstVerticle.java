@@ -13,47 +13,12 @@ import java.util.Map;
 
 public class MyFirstVerticle extends AbstractVerticle {
 
-  private Map<Integer, Animal> animals = new LinkedHashMap<>();
-
-  private void seedAnimals() {
-    Animal dog = new Animal("Dog", "Woof");
-    animals.put(dog.getId(), dog);
-    Animal cat = new Animal("Cat", "Meow");
-    animals.put(cat.getId(), cat);
-  }
-
-  private void getAll(RoutingContext routingContext) {
-    routingContext.response()
-        .putHeader("content-type", "application/json; charset=utf-8")
-        .end(Json.encodePrettily(animals.values()));
-  }
-
-  private void createAnimal(RoutingContext routingContext) {
-    final Animal animal = Json.decodeValue(routingContext.getBodyAsString(), Animal.class);
-    animals.put(animal.getId(), animal);
-    routingContext.response()
-        .setStatusCode(201)
-        .putHeader("content-type", "application/json; charset=utf-8")
-        .end(Json.encodePrettily(animal));
-  }
-
-  private void deleteAnimal(RoutingContext routingContext) {
-    String id = routingContext.request().getParam("id");
-
-    if (id == null) {
-      routingContext.response().setStatusCode(400).end();
-    } else {
-      Integer idAsInteger = Integer.valueOf(id);
-      animals.remove(idAsInteger);
-    }
-
-    routingContext.response().setStatusCode(204).end();
-  }
+  private AnimalService animalService = new AnimalService();
 
   @Override
   public void start(Future<Void> future) {
 
-    seedAnimals();
+    animalService.seed();
 
     Router router = Router.router(vertx);
 
@@ -66,10 +31,10 @@ public class MyFirstVerticle extends AbstractVerticle {
 
     router.route("/assets/*").handler(StaticHandler.create("assets"));
 
-    router.get("/api/animals").handler(this::getAll);
+    router.get("/api/animals").handler(animalService::getAll);
     router.route("/api/animals*").handler(BodyHandler.create());
-    router.post("/api/animals").handler(this::createAnimal);
-    router.delete("/api/animals/:id").handler(this::deleteAnimal);
+    router.post("/api/animals").handler(animalService::create);
+    router.delete("/api/animals/:id").handler(animalService::deleteOne);
 
     vertx
         .createHttpServer()
