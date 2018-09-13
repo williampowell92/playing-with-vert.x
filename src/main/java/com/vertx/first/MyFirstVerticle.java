@@ -3,13 +3,36 @@ package com.vertx.first;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
 import io.vertx.core.http.HttpServerResponse;
+import io.vertx.core.json.Json;
 import io.vertx.ext.web.Router;
+import io.vertx.ext.web.RoutingContext;
+import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.handler.StaticHandler;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class MyFirstVerticle extends AbstractVerticle {
 
+  private Map<Integer, Animal> animals = new LinkedHashMap<>();
+
+  private void createData() {
+    Animal dog = new Animal("Dog", "Woof");
+    animals.put(dog.getId(), dog);
+    Animal cat = new Animal("Cat", "Meow");
+    animals.put(cat.getId(), cat);
+  }
+
+  private void getAnimals(RoutingContext routingContext) {
+    routingContext.response()
+        .putHeader("content-type", "application/json; charset=utf-8")
+        .end(Json.encodePrettily(animals.values()));
+  }
+
   @Override
   public void start(Future<Void> future) {
+
+    createData();
+
     Router router = Router.router(vertx);
 
     router.route("/").handler(routingContext -> {
@@ -20,6 +43,8 @@ public class MyFirstVerticle extends AbstractVerticle {
     });
 
     router.route("/assets/*").handler(StaticHandler.create("assets"));
+
+    router.get("/api/animals").handler(this::getAnimals);
 
     vertx
         .createHttpServer()
